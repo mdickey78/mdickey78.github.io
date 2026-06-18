@@ -277,29 +277,58 @@ function takePhoto(){
     });
 }
 
-function downloadPhoto(){
+async function savePhoto() {
 
     if(!photoData){
-
-        alert(
-            "Please take a photo first."
-        );
-
+        alert("Please take a photo first.");
         return;
     }
 
-    const link =
-        document.createElement("a");
+    try {
 
-    link.href =
-        photoData;
+        const response = await fetch(photoData);
+        const blob = await response.blob();
 
-    link.download =
-        "Father_Daughter_Dance_2026.png";
+        const file = new File(
+            [blob],
+            "Father_Daughter_Dance_2026.png",
+            {
+                type: "image/png"
+            }
+        );
 
-    link.click();
+        if (
+            navigator.canShare &&
+            navigator.canShare({ files:[file] })
+        ) {
+
+            await navigator.share({
+                title: "Father Daughter Dance 2026",
+                text: "My photo from Father Daughter Dance 2026",
+                files: [file]
+            });
+
+        } else {
+
+            const link =
+                document.createElement("a");
+
+            link.href = photoData;
+            link.download =
+                "Father_Daughter_Dance_2026.png";
+
+            link.click();
+        }
+
+    } catch(error) {
+
+        console.error(error);
+
+        alert(
+            "Unable to save photo on this device."
+        );
+    }
 }
-
 startCamera();
 
 </script>
